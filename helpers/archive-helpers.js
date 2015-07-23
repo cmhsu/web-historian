@@ -99,18 +99,21 @@ exports.downloadUrls = function(urlArray){
     exports.addUrlToList(urlArray[i], function(){console.log('Got to the end');});
   }
   for(i = 0 ; i < urlArray.length ; i ++){
+    if(urlArray[i]!==undefined){
+      newPath = exports.paths.archivedSites+'/'+urlArray[i];
 
-    newPath = exports.paths.archivedSites+'/'+urlArray[i];
+      console.log(newPath);
+      http.get({url:urlArray[i], 
+                progress: function(current, total){
+                }
+          }, newPath, function(err,res){
+            if(err) throw err;
 
-    http.get({url:urlArray[i], 
-              progress: function(current, total){
-              }
-        }, newPath, function(err,res){
-          if(err) throw err;
-
-        // fs.writeFileSync(newPath, res.body);
-    });
+          // fs.writeFileSync(newPath, res.body);
+      });
+    }
   }
+
  
 };
 
