@@ -8,15 +8,43 @@ var url = require('url');
 
 exports.handleRequest = function (req, res) {
   var requestURL = url.parse(req.url);
-  if(requestURL.pathname==='/'){
-    requestURL.pathname = '/index.html';
-  }
-  fs.readFile(archive.paths.siteAssets+requestURL.pathname, function(err, html){
-    if(err){
-      throw err;
+  
+  if(req.method === 'GET'){
+    var path = "";
+    if(requestURL.pathname==='/'){
+      path = archive.paths.siteAssets+ '/index.html';
     }
-    res.writeHeader(200, {"Content-Type": "text/html"});
-    res.write(html);
-    res.end();
-  });
+
+    if(requestURL.pathname.slice(0,4)==='/www'){
+      path = archive.paths.archivedSites+requestURL.pathname;
+    }
+
+
+
+
+    fs.readFile(path, function(err, html){
+      if(err){
+        res.writeHeader(404);
+        res.end();
+      }else {
+        res.writeHeader(200, {"Content-Type": "text/html"});
+        res.write(html);
+        res.end();
+      } 
+    });
+  } else if(req.method === 'POST'){
+    var postString = "";
+    req.on('data', function(data){
+      postString+=data; 
+    });
+
+    req.on('end', function(){
+      var post = JSON.parse(postString);
+      archive.addUrlToList(post.url, function(){
+        res.writeHeader(302);
+        res.end();
+      });
+    });
+  }
+
 };

@@ -65,12 +65,13 @@ exports.isUrlInList = function(url, callback){
 };
 
 exports.addUrlToList = function(url, callback){
-  fs.appendFile(exports.paths.list, url+ '\n', 'utf8', function(err) {
+  console.log(url);
+  fs.appendFile(exports.paths.list,url+'\n', function(err) {
     if (err) {
       throw err;
     }
     callback();
-  })
+  });
 };  
 
 exports.isUrlArchived = function(url, callback){
@@ -95,18 +96,22 @@ exports.downloadUrls = function(urlArray){
         });
       }
     });
+    exports.addUrlToList(urlArray[i], function(){console.log('Got to the end');});
   }
+  for(i = 0 ; i < urlArray.length ; i ++){
 
-  http.get({url:'www.google.com', 
-            progress: function(current, total){
-              console.log(current, total);
-            }
-      }, newPath, function(err,res){
-        if(err) throw err;
-      console.log(res);
+    newPath = exports.paths.archivedSites+'/'+urlArray[i];
 
-      // fs.writeFileSync(newPath, res.body);
-  });
+    http.get({url:urlArray[i], 
+              progress: function(current, total){
+              }
+        }, newPath, function(err,res){
+          if(err) throw err;
+
+        // fs.writeFileSync(newPath, res.body);
+    });
+  }
+ 
 };
 
 exports.readListOfUrls = readListOfUrls;
